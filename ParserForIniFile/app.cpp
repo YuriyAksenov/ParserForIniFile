@@ -25,9 +25,18 @@ using namespace std;
 
 int main()
 {
-	IniParser ini = IniParser("E:\\Kronshtadt\\C++\\lab01_input_correct_09.ini");
+	try
+	{
+		IniParser ini = IniParser("E:\\Kronshtadt\\C++\\ParserForIniFile\\IniFiles\\incorrect_01.ini");
+		cout << ini.toString();
+	}
+	catch (ValidException e)
+	{
+		cout << e.getMessage();
+	}
+	
 
-	cout << ini.toString();
+	
     return 0;
 }
 
