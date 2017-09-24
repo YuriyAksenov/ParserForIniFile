@@ -20,11 +20,14 @@ provolo=UDP
 
 #include "stdafx.h"
 #include "IniParser.h"
+#include <iostream>
 using namespace std;
 
 int main()
 {
-	IniParser ini = IniParser("E:\\Kronshtadt\\C++\\lab01_input_correct_01.ini");
+	IniParser ini = IniParser("E:\\Kronshtadt\\C++\\lab01_input_correct_09.ini");
+
+	cout << ini.toString();
     return 0;
 }
 
