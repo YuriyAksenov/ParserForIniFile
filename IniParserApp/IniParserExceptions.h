@@ -1,8 +1,11 @@
-#ifndef INI_PARSER_EXCEPTION_H
-#define INI_PARSER_EXCEPTION_H
+#ifndef INI_PARSER_EXCEPTIONS_H
+#define INI_PARSER_EXCEPTIONS_H
 #include<string>
 
 class ValidException {
+private:
+	std::string ValidException::object;
+	std::string ValidException::message;
 public:
 	ValidException::ValidException(const std::string, const std::string);
 	std::string ValidException::getObject();

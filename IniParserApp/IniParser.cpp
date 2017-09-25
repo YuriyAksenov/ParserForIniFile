@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "IniParser.h"
 
-
 #include <iostream>
 #include <string> // подключаем строки
 #include <fstream> // подключаем файлы
@@ -14,46 +13,30 @@ using std::pair;
 using std::ifstream;
 
 
-struct Field {
-	string key;
-	string value;
 
-	Field(string key = "", string value = "") {
-		this->key = key;
-		this->value = value;
-	}
+IniParser::Field::Field(string key = "", string value = "") {
+	this->key = key;
+	this->value = value;
+}
 
-	bool isEmpty() {
-		return key.empty();
-	}
+string IniParser::Field::getKey() {
+	return this->key;
+}
 
-	string toString() {
-		return !isEmpty() ? key + " = " + value : "";
-	}
-};
-
-enum FieldKeyType
-{
-	none = -1,
-	comment_or_space = 0,
-	section = 1,
-	field = 2
-};
-
-map<string, vector<Field>> sections;
-
-FieldKeyType defineString(const string);
-Field parseField(const string);
-string parseSection(const string);
-bool isCommnetOrSpace(const string);
-bool isSection(const string);
-bool isField(const string);
-bool isValid(const string);
-string trim(const string);
+string IniParser::Field::getValue() {
+	return this->value;
+}
 
 
+bool IniParser::Field::isEmpty() {
+	return key.empty();
+}
 
-IniParser::IniParser(const  string fileName)
+string IniParser::Field::toString() {
+	return !isEmpty() ? key + " = " + value : "";
+}
+
+IniParser::IniParser(const string fileName)
 {
 
 	ifstream file(fileName);
@@ -95,11 +78,11 @@ IniParser::IniParser(const  string fileName)
 	file.close();
 }
 
-template<typename T>
-T IniParser::getValue(const string section, const  string field, const T type_default) {
+
+string IniParser::getValue(const string section, const  string field, const string type_default) {
 	for (auto item : sections.find(section)->second)
 	{
-		if (item.Key.compare(field) == 0) return item.Value;
+		if (item.getKey().compare(field) == 0) return item.getValue();
 	}
 	return type_default;
 }
@@ -117,7 +100,7 @@ vector<string> IniParser::getFields(const string section) {
 	vector<string> fieldsReturn = vector<string>();
 	for each (auto item in sections.find(section)->second)
 	{
-		fieldsReturn.push_back(item.key);
+		fieldsReturn.push_back(item.getKey());
 	}
 	return fieldsReturn;
 }
@@ -129,7 +112,7 @@ bool IniParser::isContainingSection(const string section) {
 bool IniParser::isContainingFieldInSection(const string section, const string field) {
 	for (auto item : sections.find(section)->second)
 	{
-		if (item.key.compare(field) == 0) return true;
+		if (item.getKey().compare(field) == 0) return true;
 	}
 	return false;
 }
@@ -141,7 +124,7 @@ string IniParser::toString() {
 		str = str + "[" + section.first + "]" + "\n";
 		for (Field field : section.second)
 		{
-			if (!field.isEmpty())str = str + "\t" + field.toString()+ "\n";
+			if (!field.isEmpty())str = str + "\t" + field.toString() + "\n";
 		}
 	}
 	return str;
@@ -156,19 +139,19 @@ IniParser::~IniParser()
 	sections.clear();
 }
 
-FieldKeyType defineString(const string str) {
+IniParser::FieldKeyType IniParser::defineString(const string str) {
 	if (isCommnetOrSpace(str)) return FieldKeyType::comment_or_space;
 	if (isSection(str)) return FieldKeyType::section;
 	if (isField(str)) return FieldKeyType::field;
 	return FieldKeyType::none;
 }
 
-string parseSection(const string str) {
-	if (str[0] == '[' && str[1] == ']') throw  ValidSectionException(str,"It is null length of section.");//NOTVALIDSECTIONEXCEPTION NULL LENGTH OF NAME SECTION
+string IniParser::parseSection(const string str) {
+	if (str[0] == '[' && str[1] == ']') throw  ValidSectionException::ValidSectionException(str, "It is null length of section.");//NOTVALIDSECTIONEXCEPTION NULL LENGTH OF NAME SECTION
 	int iteratorForClosedBracket = 0;
 	for (int i = 0; i < str.size(); i++)
 	{
-		if (str[i] == ' ' || str[i] == ';') throw ValidSectionException(str, "Spaces or special symbols are between '[' and ']'."); //NOTVALIDSECTIONEXCEPTION SOME SPACES OR SPECIAL SYMBOLS LIKE ; 
+		if (str[i] == ' ' || str[i] == ';') throw ValidSectionException::ValidSectionException(str, "Spaces or special symbols are between '[' and ']'."); //NOTVALIDSECTIONEXCEPTION SOME SPACES OR SPECIAL SYMBOLS LIKE ; 
 		if (str[i] == ']') {
 			iteratorForClosedBracket = i;
 			break;
@@ -177,18 +160,18 @@ string parseSection(const string str) {
 	return str.substr(1, iteratorForClosedBracket - 1);
 }
 
-Field parseField(const string str) {
+IniParser::Field IniParser::parseField(const string str) {
 
 
-	int equalPos = (str.find('=') != string::npos ? str.find('=') : throw ValidFieldException(str, "It is not a field.")); // NOT FIELD
+	int equalPos = (str.find('=') != string::npos ? str.find('=') : throw ValidFieldException::ValidFieldException(str, "It is not a field.")); // NOT FIELD
 
 	int commentPos = str.find(';') != string::npos ? str.find(';') : str.length() + 1;
 
-	if (commentPos < equalPos)  throw ValidFieldException(str, "It is not a field."); // Comment is places before equating
-	
-	string keyBuf = trim(str.substr(0, equalPos-1));
+	if (commentPos < equalPos)  throw ValidFieldException::ValidFieldException(str, "It is not a field."); // Comment is places before equating
 
-	if (keyBuf.empty() || !isValid(keyBuf)) throw ValidFieldException(str, "The field (key of the property) is spaced."); // данные не валидные есть пробел или пустой
+	string keyBuf = trim(str.substr(0, equalPos - 1));
+
+	if (keyBuf.empty() || !isValid(keyBuf)) throw ValidFieldException::ValidFieldException(str, "The field (key of the property) is spaced."); // данные не валидные есть пробел или пустой
 
 	int iteratorForLastValuePosition = str.length() - 1;
 	for (int i = equalPos + 1; i < str.length(); i++)
@@ -199,15 +182,15 @@ Field parseField(const string str) {
 		}
 	}
 
-	 string valueBuf = trim(str.substr(equalPos + 1, iteratorForLastValuePosition - equalPos));
+	string valueBuf = trim(str.substr(equalPos + 1, iteratorForLastValuePosition - equalPos));
 
-	 if (!valueBuf.empty() && !isValid(valueBuf)) throw ValidFieldException(str, "The field (value of the property) is spaced."); // данные не валидные есть пробел или пустой
+	if (!valueBuf.empty() && !isValid(valueBuf)) throw ValidFieldException::ValidFieldException(str, "The field (value of the property) is spaced."); // данные не валидные есть пробел или пустой
 
 	Field field = Field(keyBuf, valueBuf);
 	return field;
 }
 
-string trim(const string str) {
+string IniParser::trim(const string str) {
 
 	int i = 0;
 	while (str[i] == ' ' && i != str.size())
@@ -233,19 +216,19 @@ string trim(const string str) {
 }
 
 
-bool isCommnetOrSpace(const string str) {
+bool IniParser::isCommnetOrSpace(const string str) {
 	return str[0] == ' ' || str[0] == ';';
 }
 
-bool isField(const string str) {
+bool IniParser::isField(const string str) {
 	return str.find('=') != string::npos;
 }
 
-bool isSection(const string str) {
+bool IniParser::isSection(const string str) {
 	return str[0] == '[';
 }
 
-bool isValid(const string str) {
+bool IniParser::isValid(const string str) {
 	for (auto var : str)
 	{
 		if (var == ' ' || var == ';') return false;

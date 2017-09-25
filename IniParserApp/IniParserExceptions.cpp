@@ -1,12 +1,8 @@
 #include "stdafx.h"
-#include "IniParserException.h"
+#include "IniParserExceptions.h"
 #include <string> // подключаем строки
 
 using std::string;
-
-
-string object;
-string message;
 
 ValidException::ValidException(const string _object, const string _message) {
 	object = _object;
