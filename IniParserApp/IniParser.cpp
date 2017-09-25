@@ -74,6 +74,10 @@ IniParser::IniParser(const string fileName)
 		sections.insert(pair<string, vector<Field>>(section, fields));
 		fields.clear();
 	}
+	else if(section.empty())
+	{
+		throw ValidSectionException("filename", "File does not contain any section.");
+	}
 
 	file.close();
 }
@@ -167,7 +171,7 @@ IniParser::Field IniParser::parseField(const string str) {
 
 	int commentPos = str.find(';') != string::npos ? str.find(';') : str.length() + 1;
 
-	if (commentPos < equalPos)  throw ValidFieldException::ValidFieldException(str, "It is not a field."); // Comment is places before equating
+	if (commentPos < equalPos)  throw ValidFieldException::ValidFieldException(str, "It is not a comment and field, because ';' is placed before '='."); // Comment is places before equating
 
 	string keyBuf = trim(str.substr(0, equalPos - 1));
 
