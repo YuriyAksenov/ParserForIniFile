@@ -12,7 +12,7 @@ int main()
 {
 	try
 	{
-		IniParser ini = IniParser("E:\\Kronshtadt\\C++\\IniParser\\IniFiles\\correct_09.ini");
+		IniParser ini = IniParser("correct.ini");
 
 		cout << "Sections\n------------------------------\n";
 
